@@ -7,3 +7,6 @@ and if sensors variables was high and Danger .
 I use AT Command for this work  .
 
 Thank You !
+
+
+My licence Key: 4d6572747a203a20437265617465642062792052657a612054616e616b69207a61646568
