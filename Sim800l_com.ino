@@ -9,11 +9,12 @@ SoftwareSerial mySerial(3, 2);
 //--------Define Variables -------------
 int smokeMQ2 = A5;
 int smokeMQ5 = A4;
+int buzzer = 5;
 int flag = 0;
-int mq2Thres = 500;
-int mq5Thres = 500;
-String text = "MQ2 :";
-String text2 = " MQ5 :";
+int mq2Thres = 300;
+int mq5Thres = 300;
+String text = "LPG :";        //MQ2 Liquefied petroleum gas
+String text2 = " Methane :";  //MQ5  Methane 
 String high = "High";
 String low = "low";
 String MQ2 = "";
@@ -22,8 +23,9 @@ String st;
 int length1;
 
 void setup() {
-  //------set MQ Sensors Pin as Analog Input Pin---------
+  //------set MQ Sensors Pin as Analog Input Pin And set Buzzer pin as Output---------
   pinMode(smokeMQ2, INPUT);
+  pinMode(smokeMQ5, INPUT);
   pinMode(smokeMQ5, INPUT);
   
   //------Begin serial communication with Arduino and Arduino IDE (Serial Monitor)--------
@@ -37,19 +39,12 @@ void setup() {
   delay(1000);
 
   //---------Ready For First recived Msg--------
-  mySerial.println("AT");                   //-------Once the handshake test is successful, it will back to OK--------
-  updateSerial();
-  mySerial.println("AT+CMGF=1");            //------ Configuring TEXT mode --------
-  updateSerial();
-  mySerial.println("AT+CSQ");               //------ signal strength of the device --------
-  updateSerial();
-  mySerial.println("AT+CNMI=1,2,0,0,0");    //-------- Decides how newly arrived SMS messages should be handled---------
-  updateSerial();
-  delay(1000);
+  readyRecive();
 }
 
 void loop() {
   //Read MQ Sensors 
+  delay(1000);
   int readSensorMQ2 = analogRead(smokeMQ2);
   int readSensorMQ5 = analogRead(smokeMQ5);
 
@@ -60,25 +55,33 @@ void loop() {
   Serial.println(readSensorMQ5);
 
   //Send Message if Recived Sensor Data is Higher that Sensor Thres
-  if(readSensorMQ2 > mq2Thres || readSensorMQ5 > mq5Thres){
-    if(flag = 0){
-        if(readSensorMQ2 >= mq2Thres ){
+  delay(500);
+  if(flag == 0){
+  if(readSensorMQ2 > mq2Thres | readSensorMQ5 > mq5Thres){
+        flag = 1;
+        if(readSensorMQ2 > mq2Thres ){
              MQ2 = high;
            }else if(readSensorMQ2 < mq2Thres ){
              MQ2 = low;
            }
-        if(readSensorMQ5 >= mq5Thres ){
-            MQ5 = high;
+        if(readSensorMQ5 > mq5Thres ){
+             MQ5 = high;
            }else if(readSensorMQ5 < mq5Thres ){
-            MQ5 = low;
+             MQ5 = low;
         }
+        digitalWrite(buzzer, HIGH);
+        delay(1000);
+        digitalWrite(buzzer, LOW);  
+        delay(100);
         sentMessage(text,text2,MQ2,MQ5);
         readyRecive();
-    flag = 1;
+        flag = 1;
+        delay(1000);
      }
-    }
+  }
     
-  if(readSensorMQ2 <= 80  && readSensorMQ5 <= 300){
+    
+  if(readSensorMQ2 <= mq2Thres-50 & readSensorMQ5 <= mq2Thres-50){
     flag = 0;
     delay(100);
   }
@@ -110,7 +113,7 @@ void loop() {
 
 
   
-  delay(1000);
+  delay(100);
 }
 
 
@@ -147,7 +150,7 @@ void sentMessage(String text,String text2,String readSensorMQ2,String readSensor
       updateSerial();
       mySerial.print("AT+CMGDA=\"DEL ALL\"");                        //Delete msgs
       updateSerial();
-      delay(5000);
+      delay(3000);
   
 }
 
