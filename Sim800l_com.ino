@@ -6,6 +6,16 @@
 SoftwareSerial mySerial(3, 2);
 
 
+//music buzzer data
+int Do = 262, Re = 294 , Mi = 330 , Fa = 349 , Sol = 392 , 
+    La = 440 , Si = 494, Do2 = 524;
+
+//delay for music    
+int wait = 500;
+
+
+
+
 //--------Define Variables -------------
 int smokeMQ2 = A5;
 int smokeMQ5 = A4;
@@ -26,7 +36,7 @@ void setup() {
   //------set MQ Sensors Pin as Analog Input Pin And set Buzzer pin as Output---------
   pinMode(smokeMQ2, INPUT);
   pinMode(smokeMQ5, INPUT);
-  pinMode(smokeMQ5, INPUT);
+  pinMode(buzzer, OUTPUT);
   
   //------Begin serial communication with Arduino and Arduino IDE (Serial Monitor)--------
   Serial.begin(9600);
@@ -58,7 +68,7 @@ void loop() {
   delay(500);
   if(flag == 0){
   if(readSensorMQ2 > mq2Thres | readSensorMQ5 > mq5Thres){
-        flag = 1;
+        
         if(readSensorMQ2 > mq2Thres ){
              MQ2 = high;
            }else if(readSensorMQ2 < mq2Thres ){
@@ -69,19 +79,23 @@ void loop() {
            }else if(readSensorMQ5 < mq5Thres ){
              MQ5 = low;
         }
-        digitalWrite(buzzer, HIGH);
-        delay(1000);
-        digitalWrite(buzzer, LOW);  
-        delay(100);
+        
+   
+        buzzer_music();
+
+     
+        delay(300);
         sentMessage(text,text2,MQ2,MQ5);
         readyRecive();
         flag = 1;
         delay(1000);
+        flag = 1;
      }
+     
   }
     
     
-  if(readSensorMQ2 <= mq2Thres-50 & readSensorMQ5 <= mq2Thres-50){
+  if(readSensorMQ2 <= (mq2Thres-100) & readSensorMQ5 <= (mq5Thres-100)){
     flag = 0;
     delay(100);
   }
@@ -162,5 +176,26 @@ void readyRecive(){
       updateSerial();
       mySerial.println("AT+CNMI=1,2,0,0,0"); // Decides how newly arrived SMS messages should be handled
       updateSerial();
-      delay(1000);
+      delay(2000);
+}
+
+
+void buzzer_music() { //This function produces the 3rd siren (AMBULANCE sound).tone(buzz,440,200);
+        tone(buzzer, Do, wait);
+        delay(1000);
+        tone(buzzer, Re, wait);
+        delay(1000);
+        tone(buzzer, Mi, wait);
+        delay(1000);
+        tone(buzzer, Fa, wait);   //this note might sound too sharp
+        delay(1000);
+        tone(buzzer, Sol, wait);
+        delay(1000);
+        tone(buzzer, La, wait);
+        delay(1000);
+        tone(buzzer, Si, wait);
+        delay(1000);
+        tone(buzzer, Do2, wait);
+        delay(1000);
+        noTone(buzzer);
 }
