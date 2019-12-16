@@ -1,4 +1,3 @@
-//4d6572747a203a20437265617465642062792052657a612054616e616b69207a61646568
 #include <SoftwareSerial.h>  //----------library for send and recive data serial with AT command------------
 
 //---------Create software serial object to c//ommunicate with SIM800L-----------
@@ -24,7 +23,7 @@ int flag = 0;
 int mq2Thres = 300;
 int mq5Thres = 300;
 String text = "LPG :";        //MQ2 Liquefied petroleum gas
-String text2 = " Methane :";  //MQ5  Methane 
+String text2 = " CO2 :";  //MQ5  Methane 
 String high = "High";
 String low = "low";
 String MQ2 = "";
@@ -37,6 +36,11 @@ void setup() {
   pinMode(smokeMQ2, INPUT);
   pinMode(smokeMQ5, INPUT);
   pinMode(buzzer, OUTPUT);
+
+  digitalWrite(buzzer, HIGH);
+  delay(2000);
+  digitalWrite(buzzer, LOW);
+  
   
   //------Begin serial communication with Arduino and Arduino IDE (Serial Monitor)--------
   Serial.begin(9600);
